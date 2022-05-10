@@ -44,6 +44,14 @@
                             </div>
                             <div class="leading-none ml-1 text-xs">Connected</div>
                         </div>
+                        <div class="flex flex-row items-center mt-3">
+                            <a href="/chat/invitation" class="flex items-center justify-center bg-indigo-500 hover:bg-indigo-600 rounded-xl text-white px-2 py-0 flex-shrink-0 ">
+                                Invitation
+                            </a>
+                            <a href="/chat/contactFriends" class="flex items-center justify-center bg-indigo-500 hover:bg-indigo-600 rounded-xl text-white px-2 py-0 flex-shrink-0 ">
+                                Friend
+                            </a>
+                        </div>
                     </div>
 
                     <!-- ACTIVE FRIEND -->
@@ -53,22 +61,6 @@
                             <span id="nbActiveFriend" class="flex items-center justify-center bg-gray-300 h-4 w-4 rounded-full">id = nbActiveFriend4</span>
                         </div>
                         <div id="allActiveFriend" class="flex flex-col space-y-1 mt-4 -mx-2 h-48 overflow-y-auto">
-                            id = allActiveFriend
-                            <button id="DarkWiide" class="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2">
-                                <div class="flex items-center justify-center h-8 w-8 bg-indigo-200 rounded-full">
-                                    D
-                                </div>
-                                <div class="ml-2 text-sm font-semibold">DarkWiide</div>
-                            </button>
-                            <button id="Marta Curtis" class="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2">
-                                <div class="flex items-center justify-center h-8 w-8 bg-gray-200 rounded-full">
-                                    M
-                                </div>
-                                <div class="ml-2 text-sm font-semibold">Marta Curtis</div>
-                                <div class="flex items-center justify-center ml-auto text-xs text-white bg-red-500 h-4 w-4 rounded leading-none">
-                                    2
-                                </div>
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -89,9 +81,9 @@
                                     Me
                                 </div>
                             </div>
+                            <div class="flex-grow ml-4">
                             <form id="newMessage">
                                 @csrf
-                                <div class="flex-grow ml-4">
                                     <div class="relative w-full">
                                         <input id="message" name="message" type="text" class="flex w-full border rounded-xl focus:outline-none focus:border-indigo-300 pl-4 h-10" />
                                         <input id="recipient" name="userRecipient_id" type="hidden">
@@ -117,16 +109,16 @@
     <script>
         function refresh() {
             const name_recipient = $("#recipient").val();
-            console.log(name_recipient);
-            $.ajax({
-                type: 'GET',
-                dataType: "json",
-                url: `/chat/${name_recipient}/messages`,
-                success: function(data, status, xhr) {
-                    $("#conversation").empty();
-                    for (let i = 0; i < data.length; i++) {
-                        if (data[i]['name'] != name_recipient) {
-                            $("#conversation").append(`<div class="col-start-1 col-end-8 p-3 rounded-lg">
+            if (name_recipient != "") {
+                $.ajax({
+                    type: 'GET',
+                    dataType: "json",
+                    url: `/chat/${name_recipient}/messages`,
+                    success: function(data, status, xhr) {
+                        $("#conversation").empty();
+                        for (let i = 0; i < data.length; i++) {
+                            if (data[i]['name'] != name_recipient) {
+                                $("#conversation").append(`<div class="col-start-1 col-end-8 p-3 rounded-lg">
                                         <div class="flex flex-row items-center">
                                             <div id="userRecipient" class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
                                             ${String(data[i]['name']).charAt(0)}
@@ -136,8 +128,8 @@
                                             </div>
                                         </div>
                                     </div>`)
-                        } else {
-                            $("#conversation").append(`<div class="col-start-6 col-end-13 p-3 rounded-lg">
+                            } else {
+                                $("#conversation").append(`<div class="col-start-6 col-end-13 p-3 rounded-lg">
                                         <div class="flex items-center justify-start flex-row-reverse">
                                             <div id="userMe" class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
                                             ${String(data[i]['name']).charAt(0)}
@@ -147,23 +139,38 @@
                                             </div>
                                         </div>
                                     </div>`)
+                            }
                         }
                     }
-                }
-            });
+                });
+            }
         }
-        $("#allActiveFriend button").click(function(e) {
-            $("#recipient").val(e.target.id);
+
+        function refreshAllFriend() {
+            $("#allActiveFriend").empty();
             $.ajax({
                 type: 'GET',
-                dataType: "json",
-                url: `/chat/${e.target.id}/messages`,
-                success: function(data, status, xhr) {
-                    console.log(data);
-                    $("#conversation").html('');
+                url: '/chat/contacts',
+                dataType: 'json',
+                success: function(data, success) {
                     for (let i = 0; i < data.length; i++) {
-                        if (data[i]['name'] != e.target.id) {
-                            $("#conversation").append(`<div class="col-start-1 col-end-8 p-3 rounded-lg">
+                        $("#allActiveFriend").append(`<button id="${data[i]['name']}" class="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2">
+                                <div class="flex items-center justify-center h-8 w-8 ${Boolean(data[i]['connect']) ? "bg-green-300" : "bg-red-300"} rounded-full">
+                                ${String(data[i]['name']).charAt(0)}
+                                </div>
+                                <div class="ml-2 text-sm font-semibold">${data[i]['name']}</div>
+                            </button>`)
+                        $("#allActiveFriend button").click(function(e) {
+                            $("#recipient").val(e.target.id);
+                            $.ajax({
+                                type: 'GET',
+                                dataType: "json",
+                                url: `/chat/${e.target.id}/messages`,
+                                success: function(data, status, xhr) {
+                                    $("#conversation").html('');
+                                    for (let i = 0; i < data.length; i++) {
+                                        if (data[i]['name'] != e.target.id) {
+                                            $("#conversation").append(`<div class="col-start-1 col-end-8 p-3 rounded-lg">
                                         <div class="flex flex-row items-center">
                                             <div id="userRecipient" class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
                                             ${String(data[i]['name']).charAt(0)}
@@ -173,8 +180,8 @@
                                             </div>
                                         </div>
                                     </div>`)
-                        } else {
-                            $("#conversation").append(`<div class="col-start-6 col-end-13 p-3 rounded-lg">
+                                        } else {
+                                            $("#conversation").append(`<div class="col-start-6 col-end-13 p-3 rounded-lg">
                                         <div class="flex items-center justify-start flex-row-reverse">
                                             <div id="userMe" class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
                                             ${String(data[i]['name']).charAt(0)}
@@ -184,24 +191,37 @@
                                             </div>
                                         </div>
                                     </div>`)
-                        }
+                                        }
+                                    }
+                                }
+                            });
+                        });
                     }
-                }
-            });
-        });
 
-        setInterval(refresh, 3000);
+                }
+            })
+        }
+        refresh();
+        refreshAllFriend();
+        setInterval(refresh, 5000);
+        setInterval(refreshAllFriend, 10000);
         $("#newMessage").on('submit', function(event) {
+            console.log($("#newMessage"));
             event.preventDefault();
             $.ajax({
                 type: 'post',
-                url: "/chat/store",
+                url: '/chat/store',
                 data: $("#newMessage").serialize(),
                 success: function(data, status, xhr) {
                     refresh();
                 }
             });
         });
+
+        // $(document).ready(function(){
+        //     refreshAllFriend();
+        //     refreshAllMembers();
+        // })
     </script>
 </body>
 
