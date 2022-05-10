@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\ChatsMessageEvent;
 use Illuminate\Http\Request;
 use App\Models\Message;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
 
 
 class ChatsController extends Controller
@@ -47,7 +47,7 @@ class ChatsController extends Controller
     {
         $id_sender = Message::getIdByName(Auth::user()->name)[0]->id;
         $id_recipient = Message::getIdByName($request->userRecipient_id)[0]->id;     
-        Message::insertMessage($id_sender,$id_recipient,$request->message);
+        Message::insertMessage($id_sender,$id_recipient,Crypt::encryptString($request->message));
         // return redirect()->back()->with('status', 'Message correctement ajouté !');
     }
 
@@ -102,6 +102,9 @@ class ChatsController extends Controller
             $id_sender = Message::getIdByName(Auth::user()->name)[0]->id;
             $id_recipient = Message::getIdByName($userRecipient_id)[0]->id; 
             $result = Message::getAllMessages($id_sender,$id_recipient,Auth::user()->name,$userRecipient_id);
+            foreach($result as $value){
+                $value->message = Crypt::decryptString($value->message);
+            }
             return json_encode($result);
         }
         // echo "<script>console.log($result)</script>";

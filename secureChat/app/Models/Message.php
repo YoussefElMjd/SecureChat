@@ -21,7 +21,7 @@ class Message extends Model
         DB::insert("INSERT INTO MESSAGES(user_id,userRecipient_id,message) values(?,?,?)",[$user_sender,$user_recipient,$message]);
     }
 
-    public static function getAllMessages($user_sender, $user_recipient,$user_sender_name,$user_recipient_name){
+    public static function getAllMessages($user_sender, $user_recipient){
         $allMessage = DB::select("SELECT m.user_id, m.userRecipient_id, u.name, m.message FROM MESSAGES m join users u on u.id = m.user_id WHERE m.user_id = ? and m.userRecipient_id = ?  or m.userRecipient_id = ? and m.user_id = ? order by m.id", [$user_sender,$user_recipient,$user_sender,$user_recipient]);
         return $allMessage;
     }

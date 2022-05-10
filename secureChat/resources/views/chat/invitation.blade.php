@@ -51,7 +51,6 @@
 </div>
 
 <script>
-
     $(document).ready(function(){
         $("#Accept").click(function(e){
             $.ajax({
@@ -67,33 +66,6 @@
             })
         })
     })
-    // console.log("hello");
-    // $(document).ready(function(){
-    //     console.log("ee");
-    //     $.ajax({
-    //             type: 'GET',
-    //             dataType: "json",
-    //             url: '/chat/invitation',
-    //             success: function(data, status) {
-    //                 console.log(data);
-    //                 $("#allInvitation").empty();
-    //                 for (let i = 0; i < data.length; i++) {
-    //                     $("#allInvitation").append(`<div class="flex cursor-pointer my-1 hover:bg-blue-lightest rounded">
-    //             <div class="w-4/5 h-10 py-3 px-1">
-    //               <p class="hover:text-blue-dark">${data[i]['name']}</p>
-    //             </div>
-    //             <button id=Accept-${data[i]['name']}class="w-1/5 h-10 text-right p-3 hover:bg-green-lightest">
-    //               <p class="text-sm text-green-dark">Accept</p>
-    //             </button>
-    //             <button id=Denied-Accept-${data[i]['name']}class="w-1/5 h-10 text-right p-3 hover:bg-red-lightest">
-    //               <p class="text-sm text-red-dark">Denied</p>
-    //             </button>
-    //           </div>`)
-    //                 }
-    //             }
-    //         })
-    // });
-
 </script> 
 </body>
 
