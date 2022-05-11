@@ -49,8 +49,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group{{ $errors->has('g-recaptcha-response') ? ' has-error' : '' }}">
-                            <label class="col-md-4 control-label">Captcha</label>
+                        <div class="form-group{{ $errors->has('g-recaptcha-response') ? ' has-error' : '' }} row mb-3">
+                            <label class=" col-md-4 control-label"></label>
                             <div class="col-md-6">
                                 {!! app('captcha')->display() !!}
                                 @if ($errors->has('g-recaptcha-response'))

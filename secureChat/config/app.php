@@ -159,6 +159,8 @@ return [
         ],
     ],
 
+    'url' => 'https://localhost',
+
     /*
     |--------------------------------------------------------------------------
     | Autoloaded Service Providers

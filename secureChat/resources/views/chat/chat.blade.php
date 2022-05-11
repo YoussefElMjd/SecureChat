@@ -75,30 +75,31 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="flex flex-row items-center h-16 rounded-xl bg-white w-full px-4">
+                        <div id="newMessageBar" class="flex flex-row items-center h-16 rounded-xl bg-white w-full px-4">
                             <div>
                                 <div id="userMe" class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
                                     Me
                                 </div>
                             </div>
+                            <div id="newMessageBar"></div>
                             <div class="flex-grow ml-4">
-                            <form id="newMessage">
-                                @csrf
+                                <form id="newMessage">
+                                    @csrf
                                     <div class="relative w-full">
                                         <input id="message" name="message" type="text" class="flex w-full border rounded-xl focus:outline-none focus:border-indigo-300 pl-4 h-10" />
                                         <input id="recipient" name="userRecipient_id" type="hidden">
                                     </div>
-                                </div>
-                                <div class="ml-4">
-                                    <button id="send" class="flex items-center justify-center bg-indigo-500 hover:bg-indigo-600 rounded-xl text-white px-4 py-1 flex-shrink-0 ">
-                                        <span>Send</span>
-                                        <span class="ml-2">
-                                            <svg class="w-4 h-4 transform rotate-45 -mt-px" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-                                            </svg>
-                                        </span>
-                                    </button>
-                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <button id="send" class="flex items-center justify-center bg-indigo-500 hover:bg-indigo-600 rounded-xl text-white px-4 py-1 flex-shrink-0 ">
+                                    <span>Send</span>
+                                    <span class="ml-2">
+                                        <svg class="w-4 h-4 transform rotate-45 -mt-px" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                                        </svg>
+                                    </span>
+                                </button>
+                            </div>
                             </form>
                         </div>
                     </div>
@@ -106,123 +107,7 @@
             </div>
         </div>
     </div>
-    <script>
-        function refresh() {
-            const name_recipient = $("#recipient").val();
-            if (name_recipient != "") {
-                $.ajax({
-                    type: 'GET',
-                    dataType: "json",
-                    url: `/chat/${name_recipient}/messages`,
-                    success: function(data, status, xhr) {
-                        $("#conversation").empty();
-                        for (let i = 0; i < data.length; i++) {
-                            if (data[i]['name'] != name_recipient) {
-                                $("#conversation").append(`<div class="col-start-1 col-end-8 p-3 rounded-lg">
-                                        <div class="flex flex-row items-center">
-                                            <div id="userRecipient" class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                                            ${String(data[i]['name']).charAt(0)}
-                                            </div>
-                                            <div class="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
-                                                <div>${data[i]['message']}</div>
-                                            </div>
-                                        </div>
-                                    </div>`)
-                            } else {
-                                $("#conversation").append(`<div class="col-start-6 col-end-13 p-3 rounded-lg">
-                                        <div class="flex items-center justify-start flex-row-reverse">
-                                            <div id="userMe" class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                                            ${String(data[i]['name']).charAt(0)}
-                                            </div>
-                                            <div class="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
-                                                <div>${data[i]['message']}</div>
-                                            </div>
-                                        </div>
-                                    </div>`)
-                            }
-                        }
-                    }
-                });
-            }
-        }
-
-        function refreshAllFriend() {
-            $("#allActiveFriend").empty();
-            $.ajax({
-                type: 'GET',
-                url: '/chat/contacts',
-                dataType: 'json',
-                success: function(data, success) {
-                    for (let i = 0; i < data.length; i++) {
-                        $("#allActiveFriend").append(`<button id="${data[i]['name']}" class="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2">
-                                <div class="flex items-center justify-center h-8 w-8 ${Boolean(data[i]['connect']) ? "bg-green-300" : "bg-red-300"} rounded-full">
-                                ${String(data[i]['name']).charAt(0)}
-                                </div>
-                                <div class="ml-2 text-sm font-semibold">${data[i]['name']}</div>
-                            </button>`)
-                        $("#allActiveFriend button").click(function(e) {
-                            $("#recipient").val(e.target.id);
-                            $.ajax({
-                                type: 'GET',
-                                dataType: "json",
-                                url: `/chat/${e.target.id}/messages`,
-                                success: function(data, status, xhr) {
-                                    $("#conversation").html('');
-                                    for (let i = 0; i < data.length; i++) {
-                                        if (data[i]['name'] != e.target.id) {
-                                            $("#conversation").append(`<div class="col-start-1 col-end-8 p-3 rounded-lg">
-                                        <div class="flex flex-row items-center">
-                                            <div id="userRecipient" class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                                            ${String(data[i]['name']).charAt(0)}
-                                            </div>
-                                            <div class="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
-                                                <div>${data[i]['message']}</div>
-                                            </div>
-                                        </div>
-                                    </div>`)
-                                        } else {
-                                            $("#conversation").append(`<div class="col-start-6 col-end-13 p-3 rounded-lg">
-                                        <div class="flex items-center justify-start flex-row-reverse">
-                                            <div id="userMe" class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                                            ${String(data[i]['name']).charAt(0)}
-                                            </div>
-                                            <div class="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
-                                                <div>${data[i]['message']}</div>
-                                            </div>
-                                        </div>
-                                    </div>`)
-                                        }
-                                    }
-                                }
-                            });
-                        });
-                    }
-
-                }
-            })
-        }
-        refresh();
-        refreshAllFriend();
-        setInterval(refresh, 5000);
-        setInterval(refreshAllFriend, 10000);
-        $("#newMessage").on('submit', function(event) {
-            console.log($("#newMessage"));
-            event.preventDefault();
-            $.ajax({
-                type: 'post',
-                url: '/chat/store',
-                data: $("#newMessage").serialize(),
-                success: function(data, status, xhr) {
-                    refresh();
-                }
-            });
-        });
-
-        // $(document).ready(function(){
-        //     refreshAllFriend();
-        //     refreshAllMembers();
-        // })
-    </script>
+    <script type="text/javascript" src="{{ URL::asset('js/chat.js') }}"></script>
 </body>
 
 </html>

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,7 +16,11 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::get('/', function () {
-    return view('auth/login');
+    if(Auth::check()){
+        return view('/chat/chat');
+    }else {
+        return view('auth/login');
+    }
 });
 
 Auth::routes();
