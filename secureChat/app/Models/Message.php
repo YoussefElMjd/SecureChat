@@ -81,4 +81,8 @@ class Message extends Model
     public static function existName($user_recipient){
         return DB::table('users')->where('name',$user_recipient)->exists();
     }
+
+    public static function updateKey($publicKey){
+        DB::update("UPDATE users set publicKey = ?, privateKey  = ? where name = ?",[$publicKey,Auth::User()->name]);
+    }
 }

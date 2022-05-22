@@ -8,6 +8,9 @@ use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Spatie\Crypto\Rsa\KeyPair;
+use Spatie\Crypto\Rsa\PrivateKey;
+use Spatie\Crypto\Rsa\PublicKey;
 
 class RegisterController extends Controller
 {
@@ -68,10 +71,13 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
+        [$privateKey, $publicKey]  = (new KeyPair())->generate();
+        session(['private_key' => $privateKey]);
         return User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password'],['rounds' => 10]),
+            'publicKey' =>$publicKey,
         ]);
     }
 }

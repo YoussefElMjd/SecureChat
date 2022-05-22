@@ -96,16 +96,16 @@ refresh();
 refreshAllFriend();
 setInterval(refresh, 5000);
 setInterval(refreshAllFriend, 10000);
-$("#newMessage").on('submit', function(event) {
-    $("#message").val($("#message").val().replace(/</g, "&lt;").replace(/>/g, "&gt;"));
-    event.preventDefault();
-    $.ajax({
-        type: 'post',
-        url: '/chat/store',
-        data: $("#newMessage").serialize(),
-        success: function(data, status, xhr) {
-            $("#message").val("");
-            refresh();
-        }
-    });
-});
+// $("#newMessage").on('submit', function(event) {
+//     $("#message").val($("#message").val().replace(/</g, "&lt;").replace(/>/g, "&gt;"));
+//     event.preventDefault();
+//     $.ajax({
+//         type: 'post',
+//         url: '/chat/store',
+//         data: $("#newMessage").serialize(),
+//         success: function(data, status, xhr) {
+//             $("#message").val("");
+//             refresh();
+//         }
+//     });
+// });

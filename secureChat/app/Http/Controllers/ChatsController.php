@@ -7,6 +7,10 @@ use App\Models\Message;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 
+use Spatie\Crypto\Rsa\KeyPair;
+use Spatie\Crypto\Rsa\PrivateKey;
+use Spatie\Crypto\Rsa\PublicKey;
+use Pikirasa\RSA;
 
 class ChatsController extends Controller
 {
@@ -168,6 +172,10 @@ class ChatsController extends Controller
         $id_recipient = Message::getIdByName($userRecipient_id)[0]->id;
         Message::removeContact($id_sender, $id_recipient);
     }
+
+    public function updateKey($publicKey, $privateKey){
+            Message::updateKey($publicKey, $privateKey);
+    }
     // public function fetchMessages()
     // {
     //     return Message::with('user')->get();
@@ -181,4 +189,31 @@ class ChatsController extends Controller
     //     ]);
     //     return ['status' => 'Message Sent!'];
     // }
+
+    public function test()
+    {
+           // $pathToPublicKey = 'C:\\Users\\DarkW\\Desktop\\secg4-project-54314-56172\\secureChat\\storage\\app\\public\\pbkey.pem';
+        // $pathToPrivateKey = 'C:\\Users\\DarkW\\Desktop\\secg4-project-54314-56172\\secureChat\\storage\\app\\public\\pvkey.pem';
+        // [$privateKey, $publicKey]  = (new KeyPair())->password("hello")->generate();
+        // dump($privateKey);
+        // dump($publicKey);
+
+        // $data = 'my secret data';
+        // $publicKey =  PublicKey::fromString($publicKey,"hello");
+        // $encryptedData = $publicKey->encrypt($data); // returns something unreadable
+        // dump($encryptedData);
+        // $privateKey = PrivateKey::fromString($privateKey,"hello");
+        // $decryptedData = $privateKey->decrypt($encryptedData); // returns 'my secret data'
+        // dump($decryptedData);
+        // $publicKey = null;
+        // $privateKey = null;
+        // $rsa = new RSA($publicKey, $privateKey, 'see');
+        // $rsa->create();
+        // dump($rsa);
+        // $data = 'abc123';
+        // $encrypted = $rsa->encrypt($data);
+        // $decrypted = $rsa->decrypt($encrypted);
+        // var_dump($decrypted); // 'abc123'
+        dump(Auth::user());
+    }
 }

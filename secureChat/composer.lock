@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "868abdd8d20d8fd76e2c4e52e331e226",
+    "content-hash": "d45068e96fad0477fc3a2925cee94e12",
     "packages": [
         {
             "name": "anhskohbo/no-captcha",
@@ -3048,6 +3048,67 @@
             "time": "2022-03-27T21:42:02+00:00"
         },
         {
+            "name": "spatie/crypto",
+            "version": "2.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/spatie/crypto.git",
+                "reference": "ddae0be608fc541992bd5eb603ec64ae938365ad"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/spatie/crypto/zipball/ddae0be608fc541992bd5eb603ec64ae938365ad",
+                "reference": "ddae0be608fc541992bd5eb603ec64ae938365ad",
+                "shasum": ""
+            },
+            "require": {
+                "ext-openssl": "*",
+                "php": "^7.4|^8.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.3",
+                "symfony/var-dumper": "^5.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Spatie\\Crypto\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Freek Van der Herten",
+                    "email": "freek@spatie.be",
+                    "homepage": "https://spatie.be",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Encrypting and signing data using private/public keys",
+            "homepage": "https://github.com/spatie/crypto",
+            "keywords": [
+                "crypto",
+                "spatie"
+            ],
+            "support": {
+                "source": "https://github.com/spatie/crypto/tree/2.0.1"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/sponsors/spatie",
+                    "type": "github"
+                },
+                {
+                    "url": "https://spatie.be/open-source/support-us",
+                    "type": "other"
+                }
+            ],
+            "time": "2022-02-15T14:08:14+00:00"
+        },
+        {
             "name": "symfony/console",
             "version": "v6.0.8",
             "source": {
@@ -5268,6 +5329,59 @@
                 }
             ],
             "time": "2021-12-12T23:22:04+00:00"
+        },
+        {
+            "name": "vlucas/pikirasa",
+            "version": "v1.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/vlucas/pikirasa.git",
+                "reference": "bb27ef66bceffba6c438d0fdd2a02bacbdaa3fde"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/vlucas/pikirasa/zipball/bb27ef66bceffba6c438d0fdd2a02bacbdaa3fde",
+                "reference": "bb27ef66bceffba6c438d0fdd2a02bacbdaa3fde",
+                "shasum": ""
+            },
+            "require": {
+                "ext-openssl": "*",
+                "php": ">=5.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Pikirasa": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD"
+            ],
+            "authors": [
+                {
+                    "name": "Vance Lucas",
+                    "email": "vance@vancelucas.com",
+                    "homepage": "http://www.vancelucas.com"
+                }
+            ],
+            "description": "PKI public/private RSA key encryption using the OpenSSL extension",
+            "homepage": "https://github.com/vlucas/pikirasa",
+            "keywords": [
+                "Private Key",
+                "crypt",
+                "cryptography",
+                "encryption",
+                "openssl",
+                "pki",
+                "public key",
+                "rsa"
+            ],
+            "support": {
+                "issues": "https://github.com/vlucas/pikirasa/issues",
+                "source": "https://github.com/vlucas/pikirasa/tree/master"
+            },
+            "time": "2015-01-17T16:13:09+00:00"
         },
         {
             "name": "voku/portable-ascii",
