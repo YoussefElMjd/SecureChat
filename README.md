@@ -38,6 +38,11 @@ Méfiez-vous de désérialiser quoi que ce soit provenant de sources non fiables
 
 Par défaut, tous les cookies créés par Laravel sont cryptés et signés. Cela signifie qu'ils seront invalides si un client les falsifie.
 
+Pour l'ajout de notre certificat , nous allons utilser un serveur local. Il est nécessaire d'installer Laragon
+Lorsque laragon est lancé, il faut activer le SSL se trouvant dans les préferences -> services & ports et cocher la création automatique d'hotes
+Ajouter le projet souhaité dans le dossier racine "www".
+Clic droit -> appache -> SSL -> ajouter laragon au certificat de confiance ,démarrer le serveur et vous pouvez ouvrir votre site 
+ex : "https://{nomduprojet}.test"
 
 1. Do I properly ensure confidentiality?
     • Are sensitive data transmitted and stored securely?
@@ -53,6 +58,8 @@ Par défaut, tous les cookies créés par Laravel sont cryptés et signés. Cela
 3. Do I properly ensure non-repudiation?
 • Do I use signature, certificates, a proper authority?
     <strong>je ne sais pas si le système d'authenfication par défaut de laravel le fait</strong>
+    <strong>On utilise un serveur qui nous permettra d'ajouter un certificat et lancer la connexion en https</strong>
+    
 
 4. Do I use a proper and strong authentication scheme?
 <strong>on utilise le système d'authenfication de laravel qui est framework souvent mise à jours et dont la sécurité évolue rapidement, il utilise un schéma d'authenfication par email mot de passe ou par token si on fait un rember me</strong>
