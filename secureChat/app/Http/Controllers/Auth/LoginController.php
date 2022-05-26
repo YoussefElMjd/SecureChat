@@ -62,7 +62,7 @@ class LoginController extends Controller
             [$privateKey, $publicKey]  = (new KeyPair())->generate();
             session(['private_key'=>$privateKey]);
             Message::updateKey($publicKey); 
-            return redirect()->route('home');
+            return redirect()->route('/home');
         }
     
         return redirect("/")->withSuccess('Oppes! You have entered invalid credentials');

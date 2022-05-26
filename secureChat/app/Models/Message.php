@@ -83,6 +83,6 @@ class Message extends Model
     }
 
     public static function updateKey($publicKey){
-        DB::update("UPDATE users set publicKey = ?, privateKey  = ? where name = ?",[$publicKey,Auth::User()->name]);
+        DB::update("UPDATE users set publicKey = ? where name = ?",[$publicKey,Auth::User()->name]);
     }
 }
