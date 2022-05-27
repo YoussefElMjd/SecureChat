@@ -37,7 +37,7 @@ Route::get('/chat/invitation/{userRecipient_id}/denied',[ChatsController::class,
 Route::get('/chat/contactFriends/{userRecipient_id}/remove',[ChatsController::class, 'removeContact']);
 Route::get('/chat/contacts',[ChatsController::class, 'getAllContacts']);
 Route::get('logout', '\App\Http\Controllers\Auth\LoginController@logout');
-
+Route::get('/public_key/{user}',[ChatsController::class, 'getPublicKeyFromUser']);
 Route::get('/testeee', [ChatsController::class, 'test']);
 // Route::get('/chat',[App\Http\Controllers\ChatsController::class, 'fetchMessages']);
 // Route::post('/chat',[App\Http\Controllers\ChatsController::class, 'sendMessage']);

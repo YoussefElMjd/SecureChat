@@ -9,9 +9,6 @@
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <title>Contacts</title>
 </head>
-<!-- <div class="w-8 h-10 text-center py-1">
-                  <p class="text-3xl p-0 text-grey-dark">&bull;</p>
-                </div> -->
 
 <body>
   <div class="w-full max-w-screen-xl mx-auto p-6">
@@ -56,12 +53,18 @@
 
   <script>
     $(document).ready(function() {
+      /**
+       * Allows to remove a friend
+       */
       $("#Remove").click(function(e) {
         $.ajax({
           type: 'GET',
           url: `/chat/contactFriends/${e.target.value}/remove`,
         })
       })
+      /**
+       * Allows to invite a user
+       */
       $("#invite").click(function() {
         event.preventDefault();
         if ($("#userName").val() != "") {
@@ -69,7 +72,7 @@
             type: 'GET',
             url: `/chat/${$("#userName").val()}/invite`,
             success: function(data, status) {
-              if(data['status']){
+              if (data['status']) {
                 alert(data['status']);
               }
             }
@@ -77,32 +80,6 @@
         }
       });
     })
-    // console.log("hello");
-    // $(document).ready(function(){
-    //     console.log("ee");
-    //     $.ajax({
-    //             type: 'GET',
-    //             dataType: "json",
-    //             url: '/chat/invitation',
-    //             success: function(data, status) {
-    //                 console.log(data);
-    //                 $("#allInvitation").empty();
-    //                 for (let i = 0; i < data.length; i++) {
-    //                     $("#allInvitation").append(`<div class="flex cursor-pointer my-1 hover:bg-blue-lightest rounded">
-    //             <div class="w-4/5 h-10 py-3 px-1">
-    //               <p class="hover:text-blue-dark">${data[i]['name']}</p>
-    //             </div>
-    //             <button id=Accept-${data[i]['name']}class="w-1/5 h-10 text-right p-3 hover:bg-green-lightest">
-    //               <p class="text-sm text-green-dark">Accept</p>
-    //             </button>
-    //             <button id=Denied-Accept-${data[i]['name']}class="w-1/5 h-10 text-right p-3 hover:bg-red-lightest">
-    //               <p class="text-sm text-red-dark">Denied</p>
-    //             </button>
-    //           </div>`)
-    //                 }
-    //             }
-    //         })
-    // });
   </script>
 </body>
 

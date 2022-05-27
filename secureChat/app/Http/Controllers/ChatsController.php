@@ -14,13 +14,12 @@ use Pikirasa\RSA;
 
 class ChatsController extends Controller
 {
-    //Add the below functions
     public function __construct()
     {
         $this->middleware('auth');
     }
     /**
-     * Display a listing of the resource.
+     * Allows to set a user to connected and return the home page.
      *
      * @return \Illuminate\Http\Response
      */
@@ -32,76 +31,24 @@ class ChatsController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
+     * Allows to store a encrypted message.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
         $id_recipient = Message::getIdByName($request->userRecipient_id)[0]->id;
         if (Message::isConnected($id_recipient)) {
             $id_sender = Message::getIdByName(Auth::user()->name)[0]->id;
-            Message::insertMessage($id_sender, $id_recipient, Crypt::encryptString($request->message));
+            Message::insertMessage($id_sender, $id_recipient, Crypt::encrypt($request->message));
         }
-        // return redirect()->back()->with('status', 'Message correctement ajouté !');
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * Allows you to get the whole conversation with a person
+     *  @param $userRecipient_id the user recipient id
+     * @return JSON the conversation
      */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
-
     public function getMessages($userRecipient_id)
     {
         $id_recipient = Message::getIdByName($userRecipient_id)[0]->id;
@@ -109,21 +56,24 @@ class ChatsController extends Controller
             $id_sender = Message::getIdByName(Auth::user()->name)[0]->id;
             $result = Message::getAllMessages($id_sender, $id_recipient, Auth::user()->name, $userRecipient_id);
             foreach ($result as $value) {
-                $value->message = Crypt::decryptString($value->message);
+                $value->message = Crypt::decrypt($value->message);
             }
             return json_encode($result);
         }
-        // echo "<script>console.log($result)</script>";
     }
-
-
-
-
+    /**
+     * Allows to return all member in the database
+     * @return JSON member in JSON
+     */
     public function getAllMembers()
     {
         return json_encode(Message::getAllMembers());
     }
 
+    /**
+     * Allows to send a invitation to a user
+     *  @param $userRecipient_id the user recipient id
+     */
     public function addInvitation($userRecipient_id)
     {
         if (Message::existName($userRecipient_id) && $userRecipient_id != Auth::user()->name) {
@@ -135,37 +85,59 @@ class ChatsController extends Controller
         }
     }
 
+    /**
+     * Allows you to receive all invitations received
+     * @return all the view
+     */
     public function getInvitation()
     {
         return view('/chat/invitation', ['allInvitation' => Message::getInvitation()]);
     }
 
+    /**
+     * ALlows to accept a invvitation
+     * @param $userRecipient_id the user recipient id
+     */
     public function acceptInvitation($userRecipient_id)
     {
         $id_sender = Message::getIdByName(Auth::user()->name)[0]->id;
         $id_recipient = Message::getIdByName($userRecipient_id)[0]->id;
         Message::acceptInvitation($id_sender, $id_recipient);
     }
-
+    /**
+     * ALlows to denied a invvitation
+     * @param $userRecipient_id the user recipient id
+     */
     public function deniedInvitation($userRecipient_id)
     {
         $id_sender = Message::getIdByName(Auth::user()->name)[0]->id;
         $id_recipient = Message::getIdByName($userRecipient_id)[0]->id;
         Message::deniedInvitation($id_sender, $id_recipient);
     }
-
+    /**
+     * Allows to get all contacts/friends
+     * @return JSON contact in JSON
+     */
     public static function getAllContacts()
     {
         $id_sender = Message::getIdByName(Auth::user()->name)[0]->id;
         return json_encode(Message::getAllContacts($id_sender));
     }
 
+    /**
+     * Allows to get all contacts/friends
+     * @return view view of contact
+     */
     public function getContactFriends()
     {
         $id_sender = Message::getIdByName(Auth::user()->name)[0]->id;
         return view("/chat/contact", ['allContacts' => Message::getAllContacts($id_sender)]);
     }
 
+    /**
+     * Allow to remove a contact/friend
+     * @param $userRecipient_id the user recipient id
+     */
     public function removeContact($userRecipient_id)
     {
         $id_sender = Message::getIdByName(Auth::user()->name)[0]->id;
@@ -173,26 +145,27 @@ class ChatsController extends Controller
         Message::removeContact($id_sender, $id_recipient);
     }
 
-    public function updateKey($publicKey, $privateKey){
-            Message::updateKey($publicKey, $privateKey);
+    /**
+     * Allow to update the public key in the database
+     * @param $publicKey the new public key 
+     */
+    public function updateKey($publicKey)
+    {
+        Message::updateKey($publicKey);
     }
-    // public function fetchMessages()
-    // {
-    //     return Message::with('user')->get();
-    // }
-
-    // public function sendMessage(Request $request)
-    // {
-    //     $user = Auth::user();
-    //     $message = $user->messages()->create([
-    //         'message' => $request->input('message')
-    //     ]);
-    //     return ['status' => 'Message Sent!'];
-    // }
+    /**
+     * Allows to get the public key from a user
+     * @param $user the user name
+     * @return string public key
+     */
+    public function getPublicKeyFromUser($user)
+    {
+        return Message::getPublicKey($user);
+    }
 
     public function test()
     {
-           // $pathToPublicKey = 'C:\\Users\\DarkW\\Desktop\\secg4-project-54314-56172\\secureChat\\storage\\app\\public\\pbkey.pem';
+        // $pathToPublicKey = 'C:\\Users\\DarkW\\Desktop\\secg4-project-54314-56172\\secureChat\\storage\\app\\public\\pbkey.pem';
         // $pathToPrivateKey = 'C:\\Users\\DarkW\\Desktop\\secg4-project-54314-56172\\secureChat\\storage\\app\\public\\pvkey.pem';
         // [$privateKey, $publicKey]  = (new KeyPair())->password("hello")->generate();
         // dump($privateKey);
@@ -212,8 +185,9 @@ class ChatsController extends Controller
         // dump($rsa);
         // $data = 'abc123';
         // $encrypted = $rsa->encrypt($data);
+        // var_dump($encrypted);
         // $decrypted = $rsa->decrypt($encrypted);
         // var_dump($decrypted); // 'abc123'
-        dump(Auth::user());
+        // dump(Auth::user());
     }
 }

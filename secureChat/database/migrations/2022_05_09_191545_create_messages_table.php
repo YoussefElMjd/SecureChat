@@ -18,7 +18,7 @@ return new class extends Migration
             $table->timestamps();
             $table->integer('user_id')->unsigned();
             $table->integer('userRecipient_id')->unsigned();
-            $table->text('message');
+            $table->binary('message');
         });
     }
 

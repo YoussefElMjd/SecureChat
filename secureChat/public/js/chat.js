@@ -1,3 +1,6 @@
+/**
+ * Allows you to refresh the conversation between two people
+ */
 function refresh() {
     const name_recipient = $("#recipient").val();
     if (name_recipient != "") {
@@ -36,7 +39,9 @@ function refresh() {
         });
     }
 }
-
+/**
+ * Allows to refresh all friend
+ */
 function refreshAllFriend() {
     $("#allActiveFriend").empty();
     $.ajax({
@@ -96,14 +101,18 @@ refresh();
 refreshAllFriend();
 setInterval(refresh, 5000);
 setInterval(refreshAllFriend, 10000);
+/**
+ * Allows to send a new message to a recipient
+*/
 $("#newMessage").on('submit', function(event) {
     $("#message").val($("#message").val().replace(/</g, "&lt;").replace(/>/g, "&gt;"));
-    event.preventDefault();
+    // event.preventDefault();
     $.ajax({
         type: 'post',
         url: '/chat/store',
         data: $("#newMessage").serialize(),
         success: function(data, status, xhr) {
+            console.log(data);
             $("#message").val("");
             refresh();
         }
