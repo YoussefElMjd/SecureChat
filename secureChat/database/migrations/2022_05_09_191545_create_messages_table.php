@@ -15,10 +15,10 @@ return new class extends Migration
     {
         Schema::create('messages', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
             $table->integer('user_id')->unsigned();
             $table->integer('userRecipient_id')->unsigned();
             $table->text('message');
+            $table->text('copy');
         });
     }
 

@@ -87,6 +87,7 @@
                                     @csrf
                                     <div class="relative w-full">
                                         <input id="message" name="message" type="text" class="flex w-full border rounded-xl focus:outline-none focus:border-indigo-300 pl-4 h-10" />
+                                        <input id="copyMessage" name="copyMessage" type="hidden" />
                                         <input id="recipient" name="userRecipient_id" type="hidden">
                                     </div>
                             </div>
@@ -109,6 +110,170 @@
     </div>
 
     <script type="text/javascript" src="{{ URL::asset('js/chat.js') }}"></script>
+    <script>
+        $("#newMessage").on('submit', function(event) {
+            $("#message").val($("#message").val().replace(/</g, "&lt;").replace(/>/g, "&gt;"));
+            let user_recipient = $("#recipient").val();
+            event.preventDefault();
+            $.ajax({
+                type: 'get',
+                url: `/public_key/${user_recipient}`,
+                success: function(data) {
+                    let public_key = data;
+                    let currentmessage = $("#message").val();
+                    (async () => {
+                        let my_public_key = `<?php echo session('public_key'); ?>`;
+                        $("#message").val(await importPublicKeyAndEncrypt(currentmessage, public_key));
+                        $("#copyMessage").val(await importPublicKeyAndEncrypt(currentmessage, my_public_key));
+                        $.ajax({
+                            type: 'post',
+                            url: '/chat/store',
+                            data: $("#newMessage").serialize(),
+                            success: function(data, status, xhr) {
+                                $("#message").val("");
+                                $("#copyMessage").val("");
+                            }
+                        });
+                    })();
+                }
+            })
+        });
+
+
+        function refresh() {
+            const name_recipient = $("#recipient").val();
+            if (name_recipient != "") {
+                $.ajax({
+                    type: 'GET',
+                    dataType: "json",
+                    url: `/chat/${name_recipient}/messages`,
+                    success: function(data, status, xhr) {
+                        (async () => {
+                            let private_key = `<?php echo session('private_key') ?>`;
+                            $("#conversation").empty();
+                            for (let i = 0; i < data.length; i++) {
+                                // let msgreplace = msg.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                                if (data[i]['name'] != name_recipient) {
+                                    let msg = await importPrivateKeyAndDecrypt(data[i]['copy'], private_key);
+                                    $("#conversation").append(`<div class="col-start-1 col-end-8 p-3 rounded-lg">
+                                    <div class="flex flex-row items-center">
+                                    <div id="userRecipient" class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
+                                    ${String(data[i]['name']).charAt(0)}
+                                    </div>
+                                    <div class="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
+                                    <div>${msg}</div>
+                                    </div>
+                                    </div>
+                                    </div>`)
+                                } else {
+                                    let msg = await importPrivateKeyAndDecrypt(data[i]['message'], private_key);
+                                    $("#conversation").append(`<div class="col-start-6 col-end-13 p-3 rounded-lg">
+                                        <div class="flex items-center justify-start flex-row-reverse">
+                                            <div id="userMe" class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
+                                            ${String(data[i]['name']).charAt(0)}
+                                            </div>
+                                            <div class="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
+                                                <div>${msg}</div>
+                                            </div>
+                                        </div>
+                                    </div>`)
+                                }
+                            }
+                        })();
+                    }
+                });
+            }
+        }
+        /**
+         * Allows to refresh all friend
+         */
+        function refreshAllFriend() {
+            $("#allActiveFriend").empty();
+            $.ajax({
+                type: "GET",
+                url: "/chat/contacts",
+                dataType: "json",
+                success: function(data, success) {
+                    for (let i = 0; i < data.length; i++) {
+                        $("#allActiveFriend").append(`<button id="${data[i]["name"]
+                    .replace(/</g, "&lt;")
+                    .replace(
+                        />/g,
+                        "&gt;"
+                    )}" class="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2">
+                        <div class="flex items-center justify-center h-8 w-8 ${
+                            Boolean(data[i]["connect"])
+                                ? "bg-green-300"
+                                : "bg-red-300"
+                        } rounded-full">
+                        ${String(data[i]["name"]).charAt(0)}
+                        </div>
+                        <div class="ml-2 text-sm font-semibold">${data[i][
+                            "name"
+                        ]
+                            .replace(/</g, "&lt;")
+                            .replace(/>/g, "&gt;")}</div>
+                    </button>`);
+                        $("#allActiveFriend button").click(function(e) {
+                            $("#recipient").val(e.target.id);
+                            $.ajax({
+                                type: "GET",
+                                dataType: "json",
+                                url: `/chat/${e.target.id}/messages`,
+                                success: function(data, status, xhr) {
+                                    (async () => {
+                                        $("#conversation").html("");
+                                        let private_key = `<?php echo session('private_key') ?>`;
+                                        for (let i = 0; i < data.length; i++) {
+                                            if (data[i]["name"] != e.target.id) {
+                                                let msg = await importPrivateKeyAndDecrypt(data[i]['copy'], private_key);
+                                                $("#conversation")
+                                                    .append(`<div class="col-start-1 col-end-8 p-3 rounded-lg">
+                                <div class="flex flex-row items-center">
+                                    <div id="userRecipient" class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
+                                    ${String(data[i]["name"]).charAt(0)}
+                                    </div>
+                                    <div class="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
+                                        <div>${msg}</div>
+                                    </div>
+                                </div>
+                            </div>`);
+                                            } else {
+                                                let msg = await importPrivateKeyAndDecrypt(data[i]['message'], private_key);
+                                                $("#conversation")
+                                                    .append(`<div class="col-start-6 col-end-13 p-3 rounded-lg">
+                                <div class="flex items-center justify-start flex-row-reverse">
+                                    <div id="userMe" class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
+                                    ${String(data[i]["name"]).charAt(0)}
+                                    </div>
+                                    <div class="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
+                                        <div>${msg}</div>
+                                    </div>
+                                </div>
+                            </div>`);
+                                            }
+                                        }
+                                    })();
+                                },
+                            });
+                        });
+                    }
+                },
+            });
+        }
+
+        refreshAllFriend();
+        setInterval(refreshAllFriend, 10000);
+        refresh();
+        setInterval(refresh, 5000);
+        // (async () => {
+
+        //     let ciphertext = await importPublicKeyAndEncrypt('hello',pck);
+        //     console.log("Ciphertext:\n", ciphertext.replace(/(.{48})/g, '$1\n'));
+        //     let decryptedData = await importPrivateKeyAndDecrypt(ciphertext,pvk);
+        //     console.log("Decrypted data:", decryptedData);
+        // })();
+    </script>
 </body>
 
 </html>

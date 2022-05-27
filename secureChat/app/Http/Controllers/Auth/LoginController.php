@@ -73,13 +73,9 @@ class LoginController extends Controller
         }
 
         if ($this->attemptLogin($request)) {
-            [$privateKey, $publicKey]  = (new KeyPair())->generate();
-            session(['private_key' => $privateKey]);
-            Message::updateKey($publicKey);
             if ($request->hasSession()) {
                 $request->session()->put('auth.password_confirmed_at', time());
             }
-
             return $this->sendLoginResponse($request);
         }
 
@@ -94,7 +90,6 @@ class LoginController extends Controller
     {
         $id_sender = Message::getIdByName(Auth::user()->name)[0]->id;
         Message::setConnected(false, $id_sender);
-        Message::updateKey(null);
         Auth::logout();
         return redirect('/home');
     }

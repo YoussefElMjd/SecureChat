@@ -55,10 +55,12 @@ class RegisterController extends Controller
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed','regex:/[a-z]/',      // must contain at least one lowercase letter
-            'regex:/[A-Z]/',      // must contain at least one uppercase letter
-            'regex:/[0-9]/',      // must contain at least one digit
-            'regex:/[@$!%*+^%]/'],// must contain a special character
+            'password' => [
+                'required', 'string', 'min:8', 'confirmed', 'regex:/[a-z]/',      // must contain at least one lowercase letter
+                'regex:/[A-Z]/',      // must contain at least one uppercase letter
+                'regex:/[0-9]/',      // must contain at least one digit
+                'regex:/[@$!%*+^%]/'
+            ], // must contain a special character
             'g-recaptcha-response' => 'required|captcha',
         ]);
     }
@@ -72,12 +74,16 @@ class RegisterController extends Controller
     protected function create(array $data)
     {
         [$privateKey, $publicKey]  = (new KeyPair())->generate();
-        session(['private_key' => $privateKey]);
-        return User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password'],['rounds' => 10]),
-            'publicKey' =>$publicKey,
-        ]);
+        if ($publicKey == null) {
+            return view("/register");
+        } else {
+            session(['private_key' => $privateKey, 'public_key' => $publicKey]);
+            return User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => Hash::make($data['password'], ['rounds' => 10]),
+                'publicKey' => $publicKey,
+            ]);
+        }
     }
 }

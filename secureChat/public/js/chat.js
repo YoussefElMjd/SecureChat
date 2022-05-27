@@ -1,119 +1,154 @@
 /**
- * Allows you to refresh the conversation between two people
+ * Allows to import a public key and return a encrypt data
+ * @param {String} str the data
+ * @param {String} public_key the public key
+ * @returns encrypt data in base 64
  */
-function refresh() {
-    const name_recipient = $("#recipient").val();
-    if (name_recipient != "") {
-        $.ajax({
-            type: 'GET',
-            dataType: "json",
-            url: `/chat/${name_recipient}/messages`,
-            success: function(data, status, xhr) {
-                $("#conversation").empty();
-                for (let i = 0; i < data.length; i++) {
-                    if (data[i]['name'] != name_recipient) {
-                        $("#conversation").append(`<div class="col-start-1 col-end-8 p-3 rounded-lg">
-                                <div class="flex flex-row items-center">
-                                    <div id="userRecipient" class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                                    ${String(data[i]['name']).charAt(0)}
-                                    </div>
-                                    <div class="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
-                                        <div>${data[i]['message'].replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
-                                    </div>
-                                </div>
-                            </div>`)
-                    } else {
-                        $("#conversation").append(`<div class="col-start-6 col-end-13 p-3 rounded-lg">
-                                <div class="flex items-center justify-start flex-row-reverse">
-                                    <div id="userMe" class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                                    ${String(data[i]['name']).charAt(0)}
-                                    </div>
-                                    <div class="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
-                                        <div>${data[i]['message'].replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
-                                    </div>
-                                </div>
-                            </div>`)
-                    }
-                }
-            }
-        });
+async function importPublicKeyAndEncrypt(str, public_key) {
+    try {
+        const pub = await importPublicKey(public_key);
+        // console.log(pub);
+        const encrypted = await encryptRSA(pub, new TextEncoder().encode(str));
+        const encryptedBase64 = window.btoa(ab2str(encrypted));
+        //console.log(encryptedBase64.replace(/(.{64})/g, '$1\n'));
+        return encryptedBase64;
+    } catch (error) {
+        console.log(error);
     }
 }
 /**
- * Allows to refresh all friend
+ * Allows to import a private key and return a decrypt data
+ * @param {String} str the data
+ * @param {String} private_key the private key
+ * @returns decrypt data in plain text
  */
-function refreshAllFriend() {
-    $("#allActiveFriend").empty();
-    $.ajax({
-        type: 'GET',
-        url: '/chat/contacts',
-        dataType: 'json',
-        success: function(data, success) {
-            for (let i = 0; i < data.length; i++) {
-                $("#allActiveFriend").append(`<button id="${data[i]['name'].replace(/</g, "&lt;").replace(/>/g, "&gt;")}" class="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2">
-                        <div class="flex items-center justify-center h-8 w-8 ${Boolean(data[i]['connect']) ? "bg-green-300" : "bg-red-300"} rounded-full">
-                        ${String(data[i]['name']).charAt(0)}
-                        </div>
-                        <div class="ml-2 text-sm font-semibold">${data[i]['name'].replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
-                    </button>`)
-                $("#allActiveFriend button").click(function(e) {
-                    $("#recipient").val(e.target.id);
-                    $.ajax({
-                        type: 'GET',
-                        dataType: "json",
-                        url: `/chat/${e.target.id}/messages`,
-                        success: function(data, status, xhr) {
-                            $("#conversation").html('');
-                            for (let i = 0; i < data.length; i++) {
-                                if (data[i]['name'] != e.target.id) {
-                                    $("#conversation").append(`<div class="col-start-1 col-end-8 p-3 rounded-lg">
-                                <div class="flex flex-row items-center">
-                                    <div id="userRecipient" class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                                    ${String(data[i]['name']).charAt(0)}
-                                    </div>
-                                    <div class="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
-                                        <div>${data[i]['message'].replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
-                                    </div>
-                                </div>
-                            </div>`)
-                                } else {
-                                    $("#conversation").append(`<div class="col-start-6 col-end-13 p-3 rounded-lg">
-                                <div class="flex items-center justify-start flex-row-reverse">
-                                    <div id="userMe" class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                                    ${String(data[i]['name']).charAt(0)}
-                                    </div>
-                                    <div class="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
-                                        <div>${data[i]['message'].replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
-                                    </div>
-                                </div>
-                            </div>`)
-                                }
-                            }
-                        }
-                    });
-                });
-            }
-
-        }
-    })
+async function importPrivateKeyAndDecrypt(str, private_key) {
+    try {
+        const priv = await importPrivateKey(private_key);
+        const decrypted = await decryptRSA(priv, str2ab(window.atob(str)));
+        return decrypted;
+    } catch (error) {
+        console.log(error);
+    }
 }
-refresh();
-refreshAllFriend();
-setInterval(refresh, 5000);
-setInterval(refreshAllFriend, 10000);
+
 /**
- * Allows to send a new message to a recipient
-*/
-$("#newMessage").on('submit', function(event) {
-    $("#message").val($("#message").val().replace(/</g, "&lt;").replace(/>/g, "&gt;"));
-    event.preventDefault();
-    $.ajax({
-        type: 'post',
-        url: '/chat/store',
-        data: $("#newMessage").serialize(),
-        success: function(data, status, xhr) {
-            $("#message").val("");
-            refresh();
-        }
-    });
-});
+ * Allows to import a public key
+ * @param {String} spkiPem the brut key
+ * @returns the public key
+ */
+async function importPublicKey(spkiPem) {
+    return await window.crypto.subtle.importKey(
+        "spki", // the format for export the RSA public key
+        getSpkiDer(spkiPem), // the key data after we remove the header and footer
+        {
+            name: "RSA-OAEP", // name of public-key encryption system, RSA Optimal Asymmetric Encryption Padding, that use two function of hash
+            hash: "SHA-256",
+        },
+        true, // true, so we can extarct de key with exportKey() or wrapKey()
+        ["encrypt"] // usage of the key here for encrypt
+    );
+}
+/**
+ * Allows to import a private key
+ * @param {String} pkcs8Pem the brut key
+ * @returns the private key
+ */
+async function importPrivateKey(pkcs8Pem) {
+    return await window.crypto.subtle.importKey(
+        "pkcs8", // the format for export the RSA private key
+        getPkcs8DerDecode(pkcs8Pem), // the key data after we remove the header and footer
+        {
+            name: "RSA-OAEP", // name of public-key encryption system, RSA Optimal Asymmetric Encryption Padding, that use two function of hash
+            hash: "SHA-256",
+        },
+        true, // true, so we can extarct de key with exportKey() or wrapKey()
+        ["decrypt"] // usage of the key here for encrypt
+    );
+}
+/**
+ * Allows to encrypt a plaintext with RSA and a key
+ * @param {String} key the public key
+ * @param {String} plaintext the plaint text
+ * @returns
+ */
+async function encryptRSA(key, plaintext) {
+    let encrypted = await window.crypto.subtle.encrypt(
+        {
+            name: "RSA-OAEP", // name of public-key encryption system, RSA Optimal Asymmetric Encryption Padding, that use two function of hash
+        },
+        key,
+        plaintext
+    );
+    return encrypted;
+}
+/**
+ * Allows to decrypt a plaintext from RSA and a key
+ * @param {String} key the private key
+ * @param {String} ciphertext the cipher text
+ * @returns
+ */
+async function decryptRSA(key, ciphertext) {
+    let decrypted = await window.crypto.subtle.decrypt(
+        {
+            name: "RSA-OAEP",
+        },
+        key,
+        ciphertext
+    );
+    return new TextDecoder().decode(decrypted); // decode the data
+}
+
+/**
+ * Allows you to transform a text key into a spki format
+ * @param {String} spkiPem the brut key
+ * @returns the key with spki format
+ */
+function getSpkiDer(spkiPem) {
+    const pemHeader = "-----BEGIN PUBLIC KEY-----";
+    const pemFooter = "------END PUBLIC KEY-----";
+
+    var pemContents = spkiPem.substring(
+        pemHeader.length,
+        spkiPem.length - pemFooter.length
+    );
+    var binaryDerString = window.atob(pemContents); //decode the data has been encoded in base 64
+    return str2ab(binaryDerString); // transforme to string
+}
+
+/**
+ * Allows you to transform a text key into a pkcs8 format
+ * @param {String} pkcs8Pem the brut key
+ * @returns the key with pkcs8 format
+ */
+function getPkcs8DerDecode(pkcs8Pem) {
+    const pemHeader = "-----BEGIN PRIVATE KEY-----";
+    const pemFooter = "-------END PUBLIC KEY-----";
+    var pemContents = pkcs8Pem.substring(
+        pemHeader.length,
+        pkcs8Pem.length - pemFooter.length
+    );
+    var binaryDerString = window.atob(pemContents); //decode the data has been encoded in base 64
+    return str2ab(binaryDerString); // transforme to string
+}
+/**
+ * Allows to transform a string to a array buffer (array of binary data)
+ * @param {String} str the string 
+ * @returns the array buffer
+ */
+function str2ab(str) {
+    const buf = new ArrayBuffer(str.length);
+    const bufView = new Uint8Array(buf);
+    for (let i = 0, strLen = str.length; i < strLen; i++) {
+        bufView[i] = str.charCodeAt(i);
+    }
+    return buf;
+}
+/**
+ * Allows to transform a array buffer to a string (array of binary data)
+ * @param {ArrayBuffer} buf the array buffer
+ * @returns the string
+ */
+function ab2str(buf) {
+    return String.fromCharCode.apply(null, new Uint8Array(buf));
+}
