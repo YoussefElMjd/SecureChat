@@ -106,13 +106,12 @@ setInterval(refreshAllFriend, 10000);
 */
 $("#newMessage").on('submit', function(event) {
     $("#message").val($("#message").val().replace(/</g, "&lt;").replace(/>/g, "&gt;"));
-    // event.preventDefault();
+    event.preventDefault();
     $.ajax({
         type: 'post',
         url: '/chat/store',
         data: $("#newMessage").serialize(),
         success: function(data, status, xhr) {
-            console.log(data);
             $("#message").val("");
             refresh();
         }
