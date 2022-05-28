@@ -19,6 +19,7 @@ return new class extends Migration
             $table->integer('userRecipient_id')->unsigned();
             $table->text('message');
             $table->text('copy');
+            $table->text('signature');
         });
     }
 

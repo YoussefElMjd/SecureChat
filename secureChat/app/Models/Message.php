@@ -23,9 +23,9 @@ class Message extends Model
      * @param $user_recipient the user id of the recipient
      * @param $message the message
      */
-    public static function insertMessage($user_sender, $user_recipient, $message,$copy)
+    public static function insertMessage($user_sender, $user_recipient, $message,$copy,$signature)
     {
-        DB::insert("INSERT INTO MESSAGES(user_id,userRecipient_id,message,copy) values(?,?,?,?)", [$user_sender, $user_recipient, $message,$copy]);
+        DB::insert("INSERT INTO MESSAGES(user_id,userRecipient_id,message,copy,signature) values(?,?,?,?,?)", [$user_sender, $user_recipient, $message,$copy,$signature]);
     }
 
     /**
@@ -36,7 +36,7 @@ class Message extends Model
      */
     public static function getAllMessages($user_sender, $user_recipient)
     {
-        $allMessage = DB::select("SELECT m.user_id, m.userRecipient_id, u.name, m.message ,m.copy FROM MESSAGES m join users u on u.id = m.user_id WHERE m.user_id = ? and m.userRecipient_id = ?  or m.userRecipient_id = ? and m.user_id = ? order by m.id", [$user_sender, $user_recipient, $user_sender, $user_recipient]);
+        $allMessage = DB::select("SELECT m.user_id, m.userRecipient_id, u.name, m.message ,m.copy, m.signature FROM MESSAGES m join users u on u.id = m.user_id WHERE m.user_id = ? and m.userRecipient_id = ?  or m.userRecipient_id = ? and m.user_id = ? order by m.id", [$user_sender, $user_recipient, $user_sender, $user_recipient]);
         return $allMessage;
     }
     /**
@@ -160,4 +160,25 @@ class Message extends Model
     {
         return DB::table('users')->where('name', $user)->value('publicKey');
     }
+    /**
+     * Allows to set the sign public key for a user
+     * @param $user the user name
+     * @return string sign public key
+     */
+    public static function setSignPublicKey($user,$key)
+    {
+        DB::update("UPDATE users set sign_public_key = ? where name = ?", [$key, $user]);
+    }
+    /**
+     * Allows to set the sign public key for a user
+     * @param $user the user name
+     * @return string sign public key
+     */
+    public static function getSignPublicKey($user)
+    {
+        return DB::select("SELECT sign_public_key from users where name = ?", [$user]);
+    }
+
+
+
 }

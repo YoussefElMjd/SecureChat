@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Message;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
-
+use Mockery\Matcher\Any;
 use Spatie\Crypto\Rsa\KeyPair;
 use Spatie\Crypto\Rsa\PrivateKey;
 use Spatie\Crypto\Rsa\PublicKey;
@@ -40,7 +40,7 @@ class ChatsController extends Controller
         $id_recipient = Message::getIdByName($request->userRecipient_id)[0]->id;
         if (Message::isConnected($id_recipient)) {
             $id_sender = Message::getIdByName(Auth::user()->name)[0]->id;
-            Message::insertMessage($id_sender, $id_recipient, Crypt::encrypt($request->message), Crypt::encrypt($request->copyMessage));
+            Message::insertMessage($id_sender, $id_recipient, Crypt::encrypt($request->message), Crypt::encrypt($request->copyMessage),$request->signature);
         }
     }
 
@@ -163,14 +163,31 @@ class ChatsController extends Controller
     {
         return Message::getPublicKey($user);
     }
-
+    /**
+     * Allows to get the sign public key from a user
+     * @param $user the user name
+     * @return string public key
+     */
+    public function getSignPublicKey($user)
+    {
+        return Message::getSignPublicKey($user)[0];
+    }
+    /**
+     * Allows to set the sign public key for a user
+     * @param $user the user name
+     * @return string sign public key
+     */
+    public function storeSignPK($user, $key)
+    {
+        Message::setSignPublicKey($user, $key);
+    }
     public function test()
     {
         // dump(session('test'));
         // $pathToPublicKey = 'C:\\Users\\DarkW\\Desktop\\secg4-project-54314-56172\\secureChat\\storage\\app\\public\\pbkey.pem';
         // $pathToPrivateKey = 'C:\\Users\\DarkW\\Desktop\\secg4-project-54314-56172\\secureChat\\storage\\app\\public\\pvkey.pem';
-        dump(session('private_key'));
-        dump(session('public_key'));
+
+        // dump($sign_public_key);
 
         // $data = 'my secret data';
         // $publicKey =  PublicKey::fromString($publicKey,"hello");

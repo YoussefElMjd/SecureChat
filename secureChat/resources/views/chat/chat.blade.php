@@ -85,8 +85,10 @@
                                 <form id="newMessage">
                                     @csrf
                                     <div class="relative w-full">
-                                        <input id="message" name="message" type="text" class="flex w-full border rounded-xl focus:outline-none focus:border-indigo-300 pl-4 h-10" />
+                                        <input id="messageLine" name="messageLine" type="text" class="flex w-full border rounded-xl focus:outline-none focus:border-indigo-300 pl-4 h-10" />
+                                        <input id="message" name="message" type="hidden" />
                                         <input id="copyMessage" name="copyMessage" type="hidden" />
+                                        <input id="signature" name="signature" type="hidden" />
                                         <input id="recipient" name="userRecipient_id" type="hidden">
                                     </div>
                             </div>
@@ -111,7 +113,7 @@
     <script type="text/javascript" src="{{ URL::asset('js/chat.js') }}"></script>
     <script>
         $("#newMessage").on('submit', function(event) {
-            $("#message").val($("#message").val().replace(/</g, "&lt;").replace(/>/g, "&gt;"));
+            $("#messageLine").val($("#messageLine").val().replace(/</g, "&lt;").replace(/>/g, "&gt;"));
             let user_recipient = $("#recipient").val();
             event.preventDefault();
             $.ajax({
@@ -119,9 +121,13 @@
                 url: `/public_key/${user_recipient}`,
                 success: function(data) {
                     let public_key = data;
-                    let currentmessage = $("#message").val();
+                    let currentmessage = $("#messageLine").val();
+                    $("#messageLine").val("");
                     (async () => {
                         let my_public_key = `<?php echo session('public_key'); ?>`;
+                        let signature = sign(currentmessage);
+                        let signatureString = arrayBufferToBase64(await signature.then(result => result));
+                        $("#signature").val(signatureString);
                         $("#message").val(await importPublicKeyAndEncrypt(currentmessage, public_key));
                         $("#copyMessage").val(await importPublicKeyAndEncrypt(currentmessage, my_public_key));
                         $.ajax({
@@ -145,16 +151,22 @@
                 $.ajax({
                     type: 'GET',
                     dataType: "json",
-                    url: `/chat/${name_recipient}/messages`,
-                    success: function(data, status, xhr) {
-                        (async () => {
-                            let private_key = `<?php echo session('private_key') ?>`;
-                            $("#conversation").empty();
-                            for (let i = 0; i < data.length; i++) {
-                                // let msgreplace = msg.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                                if (data[i]['name'] != name_recipient) {
-                                    let msg = await importPrivateKeyAndDecrypt(data[i]['copy'], private_key);
-                                    $("#conversation").append(`<div class="col-start-1 col-end-8 p-3 rounded-lg">
+                    url: `/getSignPublicKey/${name_recipient}`,
+                    success: function(data) {
+                        let sign_public_key = data['sign_public_key'];
+                        $.ajax({
+                            type: 'GET',
+                            dataType: "json",
+                            url: `/chat/${name_recipient}/messages`,
+                            success: function(data, status, xhr) {
+                                (async () => {
+                                    let private_key = `<?php echo session('private_key') ?>`;
+                                    $("#conversation").empty();
+                                    for (let i = 0; i < data.length; i++) {
+                                        // let msgreplace = msg.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                                        if (data[i]['name'] != name_recipient) {
+                                            let msg = await importPrivateKeyAndDecrypt(data[i]['copy'], private_key);
+                                            $("#conversation").append(`<div class="col-start-1 col-end-8 p-3 rounded-lg">
                                     <div class="flex flex-row items-center">
                                     <div id="userRecipient" class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
                                     ${String(data[i]['name']).charAt(0)}
@@ -164,21 +176,31 @@
                                     </div>
                                     </div>
                                     </div>`)
-                                } else {
-                                    let msg = await importPrivateKeyAndDecrypt(data[i]['message'], private_key);
-                                    $("#conversation").append(`<div class="col-start-6 col-end-13 p-3 rounded-lg">
-                                        <div class="flex items-center justify-start flex-row-reverse">
-                                            <div id="userMe" class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                                            ${String(data[i]['name']).charAt(0)}
-                                            </div>
-                                            <div class="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
+                                        } else {
+                                            let msg = await importPrivateKeyAndDecrypt(data[i]['message'], private_key);
+                                            let signature = data[i]['signature'];
+                                            let signatureToAB = base64ToArrayBuffer(signature);
+                                            let check = verify(msg, signatureToAB, sign_public_key);
+                                            let result = await check.then(result => result);
+                                            if (result = true) {
+                                                $("#conversation").append(`<div class="col-start-6 col-end-13 p-3 rounded-lg">
+                                                <div class="flex items-center justify-start flex-row-reverse">
+                                                <div id="userMe" class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
+                                                ${String(data[i]['name']).charAt(0)}
+                                                </div>
+                                                <div class="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
                                                 <div>${msg}</div>
-                                            </div>
-                                        </div>
-                                    </div>`)
-                                }
+                                                </div>
+                                                </div>
+                                                </div>`)
+                                            } else {
+                                                alert("Message altered or do not come from the right person")
+                                            }
+                                        }
+                                    }
+                                })();
                             }
-                        })();
+                        })
                     }
                 });
             }
@@ -207,18 +229,24 @@
                         $("#allActiveFriend button").click(function(e) {
                             $("#recipient").val(e.target.id);
                             $.ajax({
-                                type: "GET",
+                                type: 'GET',
                                 dataType: "json",
-                                url: `/chat/${e.target.id}/messages`,
-                                success: function(data, status, xhr) {
-                                    (async () => {
-                                        $("#conversation").html("");
-                                        let private_key = `<?php echo session('private_key') ?>`;
-                                        for (let i = 0; i < data.length; i++) {
-                                            if (data[i]["name"] != e.target.id) {
-                                                let msg = await importPrivateKeyAndDecrypt(data[i]['copy'], private_key);
-                                                $("#conversation")
-                                                    .append(`<div class="col-start-1 col-end-8 p-3 rounded-lg">
+                                url: `/getSignPublicKey/${e.target.id}`,
+                                success: function(data) {
+                                    let sign_public_key = data['sign_public_key'];
+                                    $.ajax({
+                                        type: "GET",
+                                        dataType: "json",
+                                        url: `/chat/${e.target.id}/messages`,
+                                        success: function(data, status, xhr) {
+                                            (async () => {
+                                                $("#conversation").html("");
+                                                let private_key = `<?php echo session('private_key') ?>`;
+                                                for (let i = 0; i < data.length; i++) {
+                                                    if (data[i]["name"] != e.target.id) {
+                                                        let msg = await importPrivateKeyAndDecrypt(data[i]['copy'], private_key);
+                                                        $("#conversation")
+                                                            .append(`<div class="col-start-1 col-end-8 p-3 rounded-lg">
                                 <div class="flex flex-row items-center">
                                     <div id="userRecipient" class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
                                     ${String(data[i]["name"]).charAt(0)}
@@ -228,10 +256,15 @@
                                     </div>
                                 </div>
                             </div>`);
-                                            } else {
-                                                let msg = await importPrivateKeyAndDecrypt(data[i]['message'], private_key);
-                                                $("#conversation")
-                                                    .append(`<div class="col-start-6 col-end-13 p-3 rounded-lg">
+                                                    } else {
+                                                        let msg = await importPrivateKeyAndDecrypt(data[i]['message'], private_key);
+                                                        let signature = data[i]['signature'];
+                                                        let signatureToAB = base64ToArrayBuffer(signature);
+                                                        let check = verify(msg, signatureToAB, sign_public_key);
+                                                        let result = await check.then(result => result);
+                                                        if (result == true) {
+                                                            $("#conversation")
+                                                                .append(`<div class="col-start-6 col-end-13 p-3 rounded-lg">
                                 <div class="flex items-center justify-start flex-row-reverse">
                                     <div id="userMe" class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
                                     ${String(data[i]["name"]).charAt(0)}
@@ -241,14 +274,21 @@
                                     </div>
                                 </div>
                             </div>`);
-                                            }
-                                        }
-                                    })();
-                                },
+                                                        } else {
+                                                            alert("Message altered or do not come from the right person")
+                                                        }
+                                                    }
+                                                }
+                                            })();
+                                        },
+                                    });
+                                }
                             });
                         });
                     }
+
                 },
+
             });
         }
 

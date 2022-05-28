@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Message;
 use App\Providers\RouteServiceProvider;
 use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
@@ -73,6 +74,7 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
+
         [$privateKey, $publicKey]  = (new KeyPair())->generate();
         if ($publicKey == null) {
             return view("/register");
@@ -83,6 +85,7 @@ class RegisterController extends Controller
                 'email' => $data['email'],
                 'password' => Hash::make($data['password'], ['rounds' => 12]),
                 'publicKey' => $publicKey,
+                'sign_public_key' => $data['sign_public_key'],
             ]);
         }
     }
