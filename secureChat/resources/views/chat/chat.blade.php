@@ -202,7 +202,7 @@
                         } rounded-full">
                         ${String(data[i]["name"]).charAt(0)}
                         </div>
-                        <div class="ml-2 text-sm font-semibold">${data[i]["name"].replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
+                        ${data[i]["name"].replace(/</g, "&lt;").replace(/>/g, "&gt;")}
                     </button>`);
                         $("#allActiveFriend button").click(function(e) {
                             $("#recipient").val(e.target.id);
@@ -253,16 +253,9 @@
         }
 
         refreshAllFriend();
-        setInterval(refreshAllFriend, 10000);
+        setInterval(refreshAllFriend, 6000);
         refresh();
         setInterval(refresh, 5000);
-        // (async () => {
-
-        //     let ciphertext = await importPublicKeyAndEncrypt('hello',pck);
-        //     console.log("Ciphertext:\n", ciphertext.replace(/(.{48})/g, '$1\n'));
-        //     let decryptedData = await importPrivateKeyAndDecrypt(ciphertext,pvk);
-        //     console.log("Decrypted data:", decryptedData);
-        // })();
     </script>
 </body>
 

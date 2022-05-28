@@ -60,6 +60,9 @@
         $.ajax({
           type: 'GET',
           url: `/chat/invitation/${e.target.value}/accept`,
+          success:function(){
+            location.reload();
+          }
         })
       })
       /**
@@ -69,6 +72,9 @@
         $.ajax({
           type: 'GET',
           url: `/chat/invitation/${e.target.value}/denied`,
+          success:function(){
+            location.reload();
+          }
         })
       })
     })

@@ -60,6 +60,9 @@
         $.ajax({
           type: 'GET',
           url: `/chat/contactFriends/${e.target.value}/remove`,
+          success:function(){
+            location.reload();
+          }
         })
       })
       /**
