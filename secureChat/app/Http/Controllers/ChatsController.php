@@ -181,31 +181,4 @@ class ChatsController extends Controller
     {
         Message::setSignPublicKey($user, $key);
     }
-    public function test()
-    {
-        // dump(session('test'));
-        // $pathToPublicKey = 'C:\\Users\\DarkW\\Desktop\\secg4-project-54314-56172\\secureChat\\storage\\app\\public\\pbkey.pem';
-        // $pathToPrivateKey = 'C:\\Users\\DarkW\\Desktop\\secg4-project-54314-56172\\secureChat\\storage\\app\\public\\pvkey.pem';
-
-        // dump($sign_public_key);
-
-        // $data = 'my secret data';
-        // $publicKey =  PublicKey::fromString($publicKey,"hello");
-        // $encryptedData = $publicKey->encrypt($data); // returns something unreadable
-        // dump($encryptedData);
-        // $privateKey = PrivateKey::fromString($privateKey,"hello");
-        // $decryptedData = $privateKey->decrypt($encryptedData); // returns 'my secret data'
-        // dump($decryptedData);
-        // $publicKey = null;
-        // $privateKey = null;
-        // $rsa = new RSA($publicKey, $privateKey, 'see');
-        // $rsa->create();
-        // dump($rsa);
-        // $data = 'abc123';
-        // $encrypted = $rsa->encrypt($data);
-        // var_dump($encrypted);
-        // $decrypted = $rsa->decrypt($encrypted);
-        // var_dump($decrypted); // 'abc123'
-        // dump(Auth::user());
-    }
 }

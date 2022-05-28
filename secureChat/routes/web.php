@@ -42,6 +42,3 @@ Route::get('logout', '\App\Http\Controllers\Auth\LoginController@logout');
 Route::get('/public_key/{user}', [ChatsController::class, 'getPublicKeyFromUser']);
 Route::get('/sign_public_key/{user}/{key}',[ChatsController::class, 'storeSignPK']);
 Route::get('/getSignPublicKey/{user}',[ChatsController::class, 'getSignPublicKey']);
-Route::get('/testeee', [ChatsController::class, 'test']);
-// Route::get('/chat',[App\Http\Controllers\ChatsController::class, 'fetchMessages']);
-// Route::post('/chat',[App\Http\Controllers\ChatsController::class, 'sendMessage']);

@@ -30,7 +30,9 @@ async function importPrivateKeyAndDecrypt(str, private_key) {
         console.log(error);
     }
 }
-
+/**
+ * ALlows to generate a key pair for sign and verify with ECDSA alogrithme 256 bits and store it to the localStorage.
+ */
 async function generateKeyPairSign() {
     let keyPair = await window.crypto.subtle.generateKey(
         {
@@ -87,30 +89,6 @@ async function importPrivateKey(pkcs8Pem) {
     );
 }
 
-function importPrivateSignKey(jwkKey) {
-    return window.crypto.subtle.importKey(
-        "jwk",
-        jwkKey,
-        {
-            name: "ECDSA",
-            namedCurve: "P-256",
-        },
-        true,
-        ["sign"]
-    );
-}
-function importPublicVerifyKey(jwkKey) {
-    return window.crypto.subtle.importKey(
-        "jwk",
-        jwkKey, // the format for export the RSA private key // the key data after we remove the header and footer
-        {
-            name: "ECDSA", // name of public-key encryption system, RSA Optimal Asymmetric Encryption Padding, that use two function of hash
-            namedCurve: "P-256",
-        },
-        true, // true, so we can extarct de key with exportKey() or wrapKey()
-        ["verify"] // usage of the key here for encrypt
-    );
-}
 /**
  * Allows to encrypt a plaintext with RSA and a key
  * @param {String} key the public key
@@ -197,17 +175,6 @@ function str2ab(str) {
 function ab2str(buf) {
     return String.fromCharCode.apply(null, new Uint8Array(buf));
 }
-// function str2ab(str){
-//     var arr = new Uint8Array(str.length);
-//     for(var i=str.length; i--; )
-//         arr[i] = str.charCodeAt(i);
-//     return arr.buffer;
-// }
-// function ab2str(buffer){
-//     var arr = new Uint8Array(buffer);
-//     var str = String.fromCharCode.apply(String, arr);
-//     return str;
-// }
 
 /**
  * Allows to convert array buffer to base 64
@@ -278,13 +245,13 @@ async function verify(str, sign, sign_public_key) {
     let sign_public = JSON.parse(sign_public_key);
     let importKey = window.crypto.subtle.importKey(
         "jwk",
-        sign_public, // the format for export the RSA private key // the key data after we remove the header and footer
+        sign_public,
         {
-            name: "ECDSA", // name of public-key encryption system, RSA Optimal Asymmetric Encryption Padding, that use two function of hash
+            name: "ECDSA",
             namedCurve: "P-256",
         },
-        true, // true, so we can extarct de key with exportKey() or wrapKey()
-        ["verify"] // usage of the key here for encrypt
+        true,
+        ["verify"]
     );
     const public_key = await importKey.then((result) => result);
     return await window.crypto.subtle.verify(

@@ -178,7 +178,4 @@ class Message extends Model
     {
         return DB::select("SELECT sign_public_key from users where name = ?", [$user]);
     }
-
-
-
 }
