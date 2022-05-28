@@ -9,7 +9,7 @@ Notion de sécurité
 l'inscription et l'authentification à été fait avec laravel.
 
 il faut savoir que lors de l'inscription le mot de passe et stocker dans la base de donnée de manière sécurisé.
-En effet le mot de passe et hasher 12 fois avec un salt par défaut en utilisant Hash::make() cette méthode utilise l'algorithme de hachage bcrypt , couramment utilisé dans Laravel. cela est hasher de façon à ce qu'une personne tentant d'accéder a la base de donnée ne pourra rien lire.
+En effet le mot de passe et hasher 50 fois avec un salt par défaut en utilisant Hash::make() cette méthode utilise l'algorithme de hachage bcrypt , couramment utilisé dans Laravel. cela est hasher de façon à ce qu'une personne tentant d'accéder a la base de donnée ne pourra rien lire.
 la clé utiliser pour cela est celle ce trouvant dans .env dans APP_KEY (je supose qu'elle est fournis en base64).
 APP_KEY=base64:2bzK8JctjNGNRoHpJPY0NT5gg17KqZ2bDj00nl0Hys0=
 
@@ -37,11 +37,6 @@ Désactivation du débogage sur le serveurs de production. Même sur les serveur
 Méfiez-vous de désérialiser quoi que ce soit provenant de sources non fiables. Cela inclut les cookies que votre application pourrait créer. Un utilisateur malveillant peut modifier ce cookie dans son navigateur et l'utiliser comme vecteur d'attaque contre votre application.
 
 Par défaut, tous les cookies créés par Laravel sont cryptés et signés. Cela signifie qu'ils seront invalides si un client les falsifie.
-
-Pour le end to end, nous avons utiliser SubtleCrypto pour crypter et décrypter, les pairs de clé sont généré à l'inscription avec php en utilisant Spatie qui est configurer pour fournir une pair de clé RSA SHA256 2048 bit est sauvegarder dans le storage de la sessions, la clé public et également sauvegarder dans la base de donnée.
-
-SubtleCrypto crypte en RSA-OAEP qui est RSA Optimal Asymmetric Encryption Padding, celle-ci nécessite une source d'aléa ainsi que deux fonctions de hachage. 
-
 
 Pour l'ajout de notre certificat , nous allons utilser un serveur local. Il est nécessaire d'installer Laragon
 Lorsque laragon est lancé, il faut activer le SSL se trouvant dans les préferences -> services & ports et cocher la création automatique d'hotes
@@ -104,7 +99,7 @@ point de vue sécurité</strong>
 
 13. Is my access control broken (cf. OWASP 10)?
 • Do I use indirect references to resource or functions?
-<strong>pas compris</strong>
+<strong>Etant donné qu'on utilise POST pour éviter la modification de l'url et ainsi ne pas permettre à n'importe qui de modifier l'url et récuperer des données confidentielles (par contre je sais pas pour les resource ou fonctions indirect)</strong>
 
 14. Is my authentication broken (cf. OWASP 10)?
 <strong>Nous implémentons la limitation du débit et reCAPTCHA sur tous les formulaires de connexion, d'inscription et de mot de passe oublié. Cela empêche les attaques par force brute où un acteur malveillant pourrait utiliser des moyens automatisés pour essayer des milliers de combinaisons de mots de passe pour accéder à votre compte</strong>
