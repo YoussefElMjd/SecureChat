@@ -65,7 +65,7 @@ async function importPublicKey(spkiPem) {
         getSpkiDer(spkiPem), // the key data after we remove the header and footer
         {
             name: "RSA-OAEP", // name of public-key encryption system, RSA Optimal Asymmetric Encryption Padding, that use two function of hash
-            hash: "SHA-256",
+            hash: "SHA-512",
         },
         true, // true, so we can extarct de key with exportKey() or wrapKey()
         ["encrypt"] // usage of the key here for encrypt
@@ -82,7 +82,7 @@ async function importPrivateKey(pkcs8Pem) {
         getPkcs8DerDecode(pkcs8Pem), // the key data after we remove the header and footer
         {
             name: "RSA-OAEP", // name of public-key encryption system, RSA Optimal Asymmetric Encryption Padding, that use two function of hash
-            hash: "SHA-256",
+            hash: "SHA-512",
         },
         true, // true, so we can extarct de key with exportKey() or wrapKey()
         ["decrypt"] // usage of the key here for encrypt
